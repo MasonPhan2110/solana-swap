@@ -31,15 +31,19 @@ pub struct Initialize<'info> {
     pub controller: Account<'info, Controller>,
     #[account(
         init, 
-        payer=signer,
-        seeds=[ESCROW_SEED.as_ref(), token_mint.key().as_ref(), id.as_ref()],
+        payer = signer,
+        seeds = [ESCROW_SEED.as_bytes()],
         bump,
-        token::mint=token_mint,
-        token::authority=controller,
+        token::mint = token_mint,
+        token::authority = controller,
     )]
     pub escrow: Account<'info, TokenAccount>,
+    
     #[account(mut)]
     pub signer: Signer<'info>,
     pub token_mint: Account<'info, Mint>,
+    rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
+    /// CHECK: This is not dangerous 
+    pub token_program: AccountInfo<'info>
 }

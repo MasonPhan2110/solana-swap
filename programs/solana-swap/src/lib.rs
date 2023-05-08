@@ -15,4 +15,7 @@ pub mod solana_swap {
     pub fn initialize(ctx: Context<Initialize>, token_price: Vec<u64>, decimal: u8) -> Result<()> {
         instructions::initialize::initialize(ctx, token_price, decimal)
     }
+    pub fn swap(ctx: Context<Swap>, amount: u64) -> Result<()> {
+        instructions::swap::swap(ctx, amount)
+    }
 }
