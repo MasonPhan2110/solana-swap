@@ -10,12 +10,16 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod solana_swap {
+
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, token_price: Vec<u64>, decimal: u8) -> Result<()> {
-        instructions::initialize::initialize(ctx, token_price, decimal)
+    pub fn initialize(ctx: Context<Initialize>, move_per_sol: u8, decimal: u8) -> Result<()> {
+        instructions::initialize::initialize(ctx, move_per_sol, decimal)
     }
-    pub fn swap(ctx: Context<Swap>, amount: u64) -> Result<()> {
-        instructions::swap::swap(ctx, amount)
+    pub fn buy_move(ctx: Context<BuyMove>, amount: u64) -> Result<()> {
+        instructions::swap::buy_move(ctx, amount)
+    }
+    pub fn sell_move(ctx: Context<SellMove>, amount: u64) -> Result<()> {
+        instructions::swap::sell_move(ctx, amount)
     }
 }

@@ -1,14 +1,12 @@
-use crate::errors::SwapErrors;
 use crate::states::Controller;
 use crate::{CONTROLLER_SEED, ESCROW_SEED};
 use anchor_spl::token::{ Mint, TokenAccount};
 use anchor_lang::prelude::*;
 
-pub fn initialize(ctx: Context<Initialize>, token_price: Vec<u64>, decimal: u8) -> Result<()> {
-    require!(token_price.len() == 2, SwapErrors::InvalidPrice);
+pub fn initialize(ctx: Context<Initialize>, move_per_sol: u8, decimal: u8) -> Result<()> {
     let controller = &mut ctx.accounts.controller;
     controller.authorizer = ctx.accounts.signer.key();
-    controller.token_price = token_price;
+    controller.move_per_sol = move_per_sol;
     controller.decimal = decimal;
     controller.sol_received = 0;
     controller.sol_claimed = 0;
