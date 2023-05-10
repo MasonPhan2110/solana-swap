@@ -97,4 +97,29 @@ export class Swapper extends Bot {
             userTokenAccount: userTokenAccount
         }).signers([user]).rpc();
     }
+
+    deposit = async(user: anchor.web3.Keypair, userTokenAccount: anchor.web3.PublicKey, amount: anchor.BN)=> {
+        let controllerPDA = await this.getController();
+        let escrowPDA = await this.getEscrow();
+
+        return await this.program.methods.depositLiquidity(amount).accounts({
+            authorizer: user.publicKey,
+            controller: controllerPDA.key,
+            tokenMint: this.tokenMint, 
+            escrow: escrowPDA.key, 
+            userTokenAccount: userTokenAccount
+        }).signers([user]).rpc();
+    }
+    remove = async(user: anchor.web3.Keypair, userTokenAccount: anchor.web3.PublicKey, amount: anchor.BN)=> {
+        let controllerPDA = await this.getController();
+        let escrowPDA = await this.getEscrow();
+
+        return await this.program.methods.removeLiquidity(amount).accounts({
+            authorizer: user.publicKey,
+            controller: controllerPDA.key,
+            tokenMint: this.tokenMint, 
+            escrow: escrowPDA.key, 
+            userTokenAccount: userTokenAccount
+        }).signers([user]).rpc();
+    }
 }

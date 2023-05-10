@@ -27,7 +27,7 @@ pub fn buy_move(ctx: Context<BuyMove>, amount: u64) -> Result<()> {
     // Transfer Move back to User
     let amounts_out = controller.get_amount_move(amount);
     require!(escrow.amount >= amounts_out, SwapErrors::InsufficientFund);
-    // controller.token_1_amount -= amounts_out;
+    controller.token_1_amount -= amounts_out;
     let bump_vector = controller.bump.to_le_bytes();
 
     let inner = vec![CONTROLLER_SEED.as_bytes(), bump_vector.as_ref()];
@@ -141,7 +141,6 @@ pub struct SellMove<'info> {
     )]
     pub user_token_account: Account<'info, TokenAccount>,
     pub system_program: Program<'info, System>,
-    rent: Sysvar<'info, Rent>,
 
     /// CHECK: This is not dangerous
     pub token_program: AccountInfo<'info>,

@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program;
 use anchor_spl::token::{Mint, TokenAccount, Transfer};
 
 use crate::{
@@ -8,7 +7,7 @@ use crate::{
     states::Controller,
 };
 
-pub fn deposit(ctx: Context<Deposit>, amount_lamports: u64) -> Result<()> {
+pub fn remove(ctx: Context<Remove>, amount_lamports: u64) -> Result<()> {
     let controller = &mut ctx.accounts.controller;
     let authorizer = &ctx.accounts.authorizer;
     let user_token_account = &mut ctx.accounts.user_token_account;
@@ -18,41 +17,42 @@ pub fn deposit(ctx: Context<Deposit>, amount_lamports: u64) -> Result<()> {
     let amount_move = controller.get_amount_move(amount_lamports);
 
     require!(
-        authorizer.to_account_info().lamports() >= amount_lamports,
+        controller.to_account_info().lamports() >= amount_lamports,
         SwapErrors::InsufficientFund
     );
-    require!(
-        user_token_account.amount >= amount_move,
-        SwapErrors::InsufficientFund
-    );
+    require!(escrow.amount >= amount_move, SwapErrors::InsufficientFund);
 
-    // Transfer Move to escrow
-    controller.token_1_amount += amount_move;
+    // Transfer Move to authorizer
+    let amounts_out = controller.get_amount_move(amount_lamports);
+    require!(escrow.amount >= amounts_out, SwapErrors::InsufficientFund);
+    controller.token_1_amount -= amounts_out;
+    let bump_vector = controller.bump.to_le_bytes();
+
+    let inner = vec![CONTROLLER_SEED.as_bytes(), bump_vector.as_ref()];
+    let outer = vec![inner.as_slice()];
 
     let transfer_ix = Transfer {
-        from: user_token_account.to_account_info(),
-        to: escrow.to_account_info(),
-        authority: authorizer.to_account_info(),
+        from: escrow.to_account_info(),
+        to: user_token_account.to_account_info(),
+        authority: controller.to_account_info(),
     };
 
-    let cpi_ctx = CpiContext::new(token_program.to_account_info(), transfer_ix);
-    anchor_spl::token::transfer(cpi_ctx, amount_move)?;
-
-    // Transfer Sol to controller
-    controller.token_0_amount += amount_lamports;
-    let cpi_context = CpiContext::new(
-        ctx.accounts.system_program.to_account_info(),
-        system_program::Transfer {
-            from: authorizer.to_account_info(),
-            to: controller.to_account_info(),
-        },
+    let cpi_ctx = CpiContext::new_with_signer(
+        token_program.to_account_info(),
+        transfer_ix,
+        outer.as_slice(),
     );
-    system_program::transfer(cpi_context, amount_lamports)?;
+    anchor_spl::token::transfer(cpi_ctx, amounts_out)?;
+
+    // Transfer Sol to authorizer
+    controller.token_0_amount -= amount_lamports;
+    **controller.to_account_info().try_borrow_mut_lamports()? -= amount_lamports;
+    **authorizer.try_borrow_mut_lamports()? += amount_lamports;
     Ok(())
 }
 
 #[derive(Accounts)]
-pub struct Deposit<'info> {
+pub struct Remove<'info> {
     #[account(mut)]
     pub authorizer: Signer<'info>,
     pub token_mint: Account<'info, Mint>,

@@ -22,4 +22,10 @@ pub mod solana_swap {
     pub fn sell_move(ctx: Context<SellMove>, amount: u64) -> Result<()> {
         instructions::swap::sell_move(ctx, amount)
     }
+    pub fn deposit_liquidity(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        instructions::deposit_liquidity::deposit(ctx, amount)
+    }
+    pub fn remove_liquidity(ctx: Context<Remove>, amount: u64) -> Result<()> {
+        instructions::remove_liquidity::remove(ctx, amount)
+    }
 }
