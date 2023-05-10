@@ -71,35 +71,40 @@ describe("solana-swap", () => {
   })
   it("Deposit", async()=>{
     const controller = await swapper.getController();
+    let escrow = await swapper.getEscrow(); 
     let controllerInfo = await swapper.provider.connection.getAccountInfo(controller.key);
-    let controllerBalanceBeforeSwap = controllerInfo.lamports;
+    let controllerBalanceBefore = controllerInfo.lamports;
 
     let deployerInfo = await swapper.provider.connection.getAccountInfo(deployer.publicKey);
-    let deployerBalanceBeforeSwap = deployerInfo.lamports;
-    console.log("deployer balance ", deployerBalanceBeforeSwap);
-    
+    let deployerBalanceBefore = deployerInfo.lamports;
 
     let deployerTokenBalanceBefore = await getSplBalance(swapper.provider, deployer_token_wallet);
+    let escrowTokenBalanceBefore = await getSplBalance(swapper.provider, escrow.key);
+
+    // Deployer deposit twice
+    await swapper.deposit(deployer, deployer_token_wallet, solAmount);
     await swapper.deposit(deployer, deployer_token_wallet, solAmount);
 
+    let escrowTokenBalanceAfter = await getSplBalance(swapper.provider, escrow.key);
+
     let deployerTokenBalanceAfter = await getSplBalance(swapper.provider, deployer_token_wallet);
-    console.log("deployer balance ", deployerTokenBalanceAfter);
 
     controllerInfo = await swapper.provider.connection.getAccountInfo(controller.key);
-    let controllerBalanceAfterSwap = controllerInfo.lamports;
+    let controllerBalanceAfter = controllerInfo.lamports;
 
     deployerInfo = await swapper.provider.connection.getAccountInfo(deployer.publicKey);
-    let deployerBalanceAfterSwap = deployerInfo.lamports;
+    let deployerBalanceAfter = deployerInfo.lamports;
      // ASSERTION
     /**
-     * Controller SOL balance should increase by: 1 SOL (10^9 lamports)
-     * Escrow balance should increase by: 10 MOVE (10 * 10^MOVE_DECIMAL) 
+     * Controller SOL balance should increase by: 2 SOL (2 * 10^9 lamports)
+     * Escrow balance should increase by: 20 MOVE (20 * 10^MOVE_DECIMAL) 
+     * Deployer SOL balance should decrease by: 2 SOL (2 * 10^9 lamports)
      */
-    assert.ok(deployerBalanceBeforeSwap - deployerBalanceAfterSwap >= solAmount.toNumber(), "Deployer balance should be deducted by an amount greater than 1 SOL");
-    assert.ok(controllerBalanceAfterSwap - controllerBalanceBeforeSwap == solAmount.toNumber(), "Controller Balance should increase by an swap amount");
-    
-    let expectedTokenAmount = solAmount.mul(new anchor.BN(MOVE_PER_SOL)).mul(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL))).div(SOL_TO_LAMPORT)
-    assert.ok(Number(deployerTokenBalanceBefore) - Number(deployerTokenBalanceAfter) == expectedTokenAmount.toNumber(), "Deployer Token balance should decrease by expected amount");
+    assert.ok(deployerBalanceBefore - deployerBalanceAfter >= 2*solAmount.toNumber(), "Deployer balance should be deducted by an amount greater than 2 SOL");
+    assert.ok(controllerBalanceAfter - controllerBalanceBefore == 2*solAmount.toNumber(), "Controller Balance should increase by an swap amount");
+    let expectedTokenAmount = solAmount.mul(new anchor.BN(MOVE_PER_SOL)).mul(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL))).div(SOL_TO_LAMPORT);
+    assert.ok(Number(escrowTokenBalanceAfter) - Number(escrowTokenBalanceBefore) == 2*expectedTokenAmount.toNumber(),"Escrow Token balance should increase by 2 expected amount");
+    assert.ok(Number(deployerTokenBalanceBefore) - Number(deployerTokenBalanceAfter) == 2*expectedTokenAmount.toNumber(), "Deployer Token balance should decrease by 2 expected amount");
   })
   it("Buy Move", async()=>{ 
     const controller = await swapper.getController();
@@ -129,25 +134,20 @@ describe("solana-swap", () => {
     expectedReceiveAmount = solAmount.mul(new anchor.BN(MOVE_PER_SOL)).mul(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL))).div(SOL_TO_LAMPORT)
     assert.ok(expectedReceiveAmount.toNumber() == Number(bobMoveBalance), "Bob receive an incorect amount");
   })  
-  // Todo: Test Sell Move
 
   it("Sell Move", async()=>{
     const controller = await swapper.getController();
     let controllerInfo = await swapper.provider.connection.getAccountInfo(controller.key);
 
     expectedReceiveAmount = moveAmount.mul(SOL_TO_LAMPORT).div(new anchor.BN(MOVE_PER_SOL)).div(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL)))
-    console.log("Expected Sol Receive: ",Number(expectedReceiveAmount));
 
     let controllerBalanceBeforeSwap = controllerInfo.lamports;
-    console.log("Controller Sol Balance", Number(controllerBalanceBeforeSwap));
 
     let bobInfo = await swapper.provider.connection.getAccountInfo(bob.publicKey);
     let bobBalanceBeforeSwap = bobInfo.lamports;
 
     let escrow = await swapper.getEscrow(); 
-    let escowInfo = await swapper.provider.connection.getAccountInfo(escrow.key);
     let escrowTokenBalanceBeforeSwap = await getSplBalance(swapper.provider, escrow.key);
-    console.log("Escrow Token Balance", Number(escrowTokenBalanceBeforeSwap));
     
 
     // Bob sell Move
@@ -159,8 +159,6 @@ describe("solana-swap", () => {
     bobInfo = await swapper.provider.connection.getAccountInfo(bob.publicKey);
     let bobBalanceAfterSwap = bobInfo.lamports;
 
-
-    escowInfo = await swapper.provider.connection.getAccountInfo(escrow.key);
     let escrowTokenBalanceAfterSwap = await getSplBalance(swapper.provider, escrow.key);
 
 
@@ -180,6 +178,44 @@ describe("solana-swap", () => {
     assert.ok(Number(bobMoveBalance) == 0, "Bob token balance should be 0");
   })
   it("Remove", async()=>{
+    let escrow = await swapper.getEscrow();
+    const controller = await swapper.getController();
+    let controllerInfo = await swapper.provider.connection.getAccountInfo(controller.key);
+    let controllerBalanceBeforeSwap = controllerInfo.lamports;
 
+    let deployerInfo = await swapper.provider.connection.getAccountInfo(deployer.publicKey);
+    let deployerBalanceBefore = deployerInfo.lamports;
+    
+    let deployerTokenBalanceBefore = await getSplBalance(swapper.provider, deployer_token_wallet);
+    let escrowTokenBalanceBefore = await getSplBalance(swapper.provider, escrow.key);
+
+
+    // Deployer remove liquidity
+    await swapper.remove(deployer, deployer_token_wallet, solAmount);
+
+    let escrowTokenBalanceAfter = await getSplBalance(swapper.provider, escrow.key);
+
+    let deployerTokenBalanceAfter = await getSplBalance(swapper.provider, deployer_token_wallet);
+
+    controllerInfo = await swapper.provider.connection.getAccountInfo(controller.key);
+    let controllerBalanceAfterSwap = controllerInfo.lamports;
+
+    deployerInfo = await swapper.provider.connection.getAccountInfo(deployer.publicKey);
+    let deployerBalanceAfter = deployerInfo.lamports;
+     // ASSERTION
+    /**
+     * Controller SOL balance should decrease by: 1 SOL (10^9 lamports)
+     * Escrow balance should decrease by: 10 MOVE (10 * 10^MOVE_DECIMAL) 
+     * Deployer SOL balance should increase by: 1 SOL (10^9 lamports)
+     */
+    assert.ok(deployerBalanceAfter - deployerBalanceBefore > 0, "Deployer balance should be increase");
+    assert.ok(controllerBalanceBeforeSwap - controllerBalanceAfterSwap == solAmount.toNumber(), "Controller Balance should increase by 1 SOL");
+    
+    let expectedTokenAmount = solAmount.mul(new anchor.BN(MOVE_PER_SOL)).mul(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL))).div(SOL_TO_LAMPORT)
+    assert.ok(Number(escrowTokenBalanceBefore) - Number(escrowTokenBalanceAfter) == expectedTokenAmount.toNumber(),"Escrow Token balance should decrease by expected amount");
+    assert.ok(Number(deployerTokenBalanceAfter) - Number(deployerTokenBalanceBefore) == expectedTokenAmount.toNumber(), "Deployer Token balance should increase by expected amount");
   })
+  // TODO
+  it("Alice cant add liquidity", async()=>{})
+  it("Alice cant remove liquidity", async()=>{})
 });
