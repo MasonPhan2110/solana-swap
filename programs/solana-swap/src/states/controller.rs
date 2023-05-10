@@ -6,8 +6,8 @@ pub struct Controller {
     pub authorizer: Pubkey,
     pub move_per_sol: u8,
     pub decimal: u8,
-    pub sol_received: u64,
-    pub sol_claimed: u64,
+    pub token_0_amount: u64,
+    pub token_1_amount: u64,
     pub bump: u8,
     pub escrow_bump: u8,
 }
@@ -16,12 +16,12 @@ const DISCRIMINATOR_LENGTH: usize = 8;
 const PUBLIC_KEY_LENGTH: usize = 32;
 
 const U8_SIZE_LENGTH: usize = 1;
-const U128_SIZE_LENGTH: usize = 16;
+const U64_SIZE_LENGTH: usize = 8;
 
 impl Controller {
     //todo: implement LEN for the struct data
     pub const LEN: usize =
-        DISCRIMINATOR_LENGTH + PUBLIC_KEY_LENGTH + U8_SIZE_LENGTH * 4 + U128_SIZE_LENGTH * 2;
+        DISCRIMINATOR_LENGTH + PUBLIC_KEY_LENGTH + U8_SIZE_LENGTH * 4 + U64_SIZE_LENGTH * 2;
     pub fn get_amount_move(&self, lamports: u64) -> u64 {
         let amount =
             (lamports as u128) * (self.move_per_sol as u128) * 10u128.pow(self.decimal as u32)

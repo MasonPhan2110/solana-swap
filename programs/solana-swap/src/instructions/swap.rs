@@ -14,7 +14,7 @@ pub fn buy_move(ctx: Context<BuyMove>, amount: u64) -> Result<()> {
     let token_program = &ctx.accounts.token_program;
 
     // Get SOL from the User
-    controller.sol_received += amount;
+    controller.token_0_amount += amount;
     let cpi_context = CpiContext::new(
         ctx.accounts.system_program.to_account_info(),
         system_program::Transfer {
@@ -27,6 +27,7 @@ pub fn buy_move(ctx: Context<BuyMove>, amount: u64) -> Result<()> {
     // Transfer Move back to User
     let amounts_out = controller.get_amount_move(amount);
     require!(escrow.amount >= amounts_out, SwapErrors::InsufficientFund);
+    // controller.token_1_amount -= amounts_out;
     let bump_vector = controller.bump.to_le_bytes();
 
     let inner = vec![CONTROLLER_SEED.as_bytes(), bump_vector.as_ref()];
@@ -48,7 +49,7 @@ pub fn buy_move(ctx: Context<BuyMove>, amount: u64) -> Result<()> {
 }
 
 pub fn sell_move(ctx: Context<SellMove>, amount: u64) -> Result<()> {
-    let user = &mut ctx.accounts.user;
+    let user = &ctx.accounts.user;
     let controller = &mut ctx.accounts.controller;
 
     let escrow = &mut ctx.accounts.escrow;
@@ -60,6 +61,7 @@ pub fn sell_move(ctx: Context<SellMove>, amount: u64) -> Result<()> {
         user_token_account.amount >= amount,
         SwapErrors::InsufficientFund
     );
+    controller.token_1_amount += amount;
 
     let transfer_ix = Transfer {
         from: user_token_account.to_account_info(),
@@ -72,17 +74,12 @@ pub fn sell_move(ctx: Context<SellMove>, amount: u64) -> Result<()> {
 
     // Transfer SOL back to User
     let amount_lamports = controller.get_amount_lamports(amount);
-    let lmps: u64 = escrow.to_account_info().lamports();
+    let lmps: u64 = controller.to_account_info().lamports();
     require!(lmps >= amount_lamports, SwapErrors::InsufficientFund);
-    controller.sol_received -= amount_lamports;
-    let cpi_context = CpiContext::new(
-        ctx.accounts.system_program.to_account_info(),
-        system_program::Transfer {
-            from: controller.to_account_info(),
-            to: user.to_account_info(),
-        },
-    );
-    system_program::transfer(cpi_context, amount_lamports)?;
+    controller.token_0_amount -= amount_lamports;
+
+    **controller.to_account_info().try_borrow_mut_lamports()? -= amount_lamports;
+    **user.try_borrow_mut_lamports()? += amount_lamports;
     Ok(())
 }
 
@@ -138,6 +135,7 @@ pub struct SellMove<'info> {
     )]
     pub escrow: Account<'info, TokenAccount>,
     #[account(
+        mut,
         associated_token::mint = token_mint,
         associated_token::authority = user,
     )]

@@ -56,7 +56,7 @@ export class Swapper extends Bot {
     }
 
     initialize = async(
-        initializer: anchor.web3.Keypair, 
+        authorizer: anchor.web3.Keypair, 
         move_per_sol: number, 
         token_decimal: number
     )=> {
@@ -64,19 +64,32 @@ export class Swapper extends Bot {
         let escrowPDA = await this.getEscrow();
 
         return await this.program.methods.initialize(move_per_sol, token_decimal).accounts({
-            initializer: initializer.publicKey,
+            signer: authorizer.publicKey,
             tokenMint: this.tokenMint,
             controller: controllerPDA.key,
             escrow: escrowPDA.key
-        }).signers([initializer]).rpc();
+        }).signers([authorizer]).rpc();
     }
 
 
-    swap = async(user: anchor.web3.Keypair, userTokenAccount: anchor.web3.PublicKey, amount: anchor.BN)=> {
+    buy_move = async(user: anchor.web3.Keypair, userTokenAccount: anchor.web3.PublicKey, amount: anchor.BN)=> {
         let controllerPDA = await this.getController();
         let escrowPDA = await this.getEscrow();
 
-        return await this.program.methods.swap(amount).accounts({
+        return await this.program.methods.buyMove(amount).accounts({
+            user: user.publicKey,
+            controller: controllerPDA.key,
+            tokenMint: this.tokenMint, 
+            escrow: escrowPDA.key, 
+            userTokenAccount: userTokenAccount
+        }).signers([user]).rpc();
+    }
+
+    sell_move = async(user: anchor.web3.Keypair, userTokenAccount: anchor.web3.PublicKey, amount: anchor.BN)=> {
+        let controllerPDA = await this.getController();
+        let escrowPDA = await this.getEscrow();
+
+        return await this.program.methods.sellMove(amount).accounts({
             user: user.publicKey,
             controller: controllerPDA.key,
             tokenMint: this.tokenMint, 

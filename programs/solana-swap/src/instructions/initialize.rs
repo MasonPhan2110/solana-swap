@@ -8,8 +8,8 @@ pub fn initialize(ctx: Context<Initialize>, move_per_sol: u8, decimal: u8) -> Re
     controller.authorizer = ctx.accounts.signer.key();
     controller.move_per_sol = move_per_sol;
     controller.decimal = decimal;
-    controller.sol_received = 0;
-    controller.sol_claimed = 0;
+    controller.token_0_amount = 0;
+    controller.token_1_amount = 0;
     controller.bump = *ctx.bumps.get(CONTROLLER_SEED).unwrap();
     controller.escrow_bump = *ctx.bumps.get(ESCROW_SEED).unwrap();
     msg!("action: initialize");
