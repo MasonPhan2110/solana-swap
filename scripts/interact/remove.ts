@@ -11,7 +11,7 @@ const main= async()=>{
  
     let deployerATA = await getAtaAccount(swap_token, swapper.deployer.publicKey);
     let amount = new anchor.BN(10000000); // 1 SOL
-    await swapper.deposit(swapper.deployer, deployerATA, amount);
+    await swapper.remove(swapper.deployer, deployerATA, amount);
 }
   
 main().catch(error => console.log(error));
