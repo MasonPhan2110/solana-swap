@@ -215,7 +215,22 @@ describe("solana-swap", () => {
     assert.ok(Number(escrowTokenBalanceBefore) - Number(escrowTokenBalanceAfter) == expectedTokenAmount.toNumber(),"Escrow Token balance should decrease by expected amount");
     assert.ok(Number(deployerTokenBalanceAfter) - Number(deployerTokenBalanceBefore) == expectedTokenAmount.toNumber(), "Deployer Token balance should increase by expected amount");
   })
-  // TODO
-  it("Alice cant add liquidity", async()=>{})
-  it("Alice cant remove liquidity", async()=>{})
+  it("Alice cant add liquidity", async()=>{
+    try{
+      await swapper.deposit(alice, alice_token_wallet, solAmount);
+    } catch(error) {
+      assert.equal(error.error.errorMessage, 'A has one constraint was violated', "wrong error msg");
+      return;
+    }
+    assert.fail("The instruction should fail since Alice is not the authorizer");
+  })
+  it("Alice cant remove liquidity", async()=>{
+    try{
+      await swapper.remove(alice, alice_token_wallet, solAmount);
+    } catch(error) {
+      assert.equal(error.error.errorMessage, 'A has one constraint was violated', "wrong error msg");
+      return;
+    }
+    assert.fail("The instruction should fail since Alice is not the authorizer");
+  })
 });
