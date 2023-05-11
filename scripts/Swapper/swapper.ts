@@ -1,9 +1,10 @@
-import {Bot} from "./bot";
 import * as anchor from "@project-serum/anchor";
+import * as solana from "@solana/web3.js";
+import {getDeployer, getProvider} from "../utils/provider";
 
 
-const CONTROLLER_PDA_SEED = "controller";
-const ESCROW_PDA_SEED = "escrow";
+const CONTROLLER_SEED = "controller";
+const ESCROW_SEED = "escrow";
 
 
 interface PDAParam {
@@ -11,15 +12,36 @@ interface PDAParam {
     bump: number
 }
 
-export class Swapper extends Bot { 
+export class Swapper { 
     tokenMint: anchor.web3.PublicKey;
+    deployer: solana.Keypair;
+    provider: anchor.AnchorProvider;
+    program: anchor.Program;
 
     constructor(
         tokenMint: anchor.web3.PublicKey,
         provider?: anchor.AnchorProvider, 
         deployer?: anchor.web3.Keypair
     ){
-        super(provider, deployer);
+        //local net  
+      if (provider){
+        this.provider = provider;
+
+        if (!deployer){
+          console.log("----------- Require custom deployer for testing -----------");
+          process.exit(1);
+        }
+        this.deployer= deployer;
+      }
+      
+      //devnet or mainnet
+      else{
+        this.deployer = getDeployer();
+        this.provider = getProvider(this.deployer);
+      }
+      
+      anchor.setProvider(this.provider);    
+    
         this.program = anchor.workspace.SolanaSwap;
         this.tokenMint = tokenMint
     }
@@ -29,7 +51,7 @@ export class Swapper extends Bot {
         const [pda, bump] =  anchor.web3.PublicKey
         .findProgramAddressSync(
             [
-            anchor.utils.bytes.utf8.encode(CONTROLLER_PDA_SEED),
+            anchor.utils.bytes.utf8.encode(CONTROLLER_SEED),
             ],
             this.program.programId
         );
@@ -44,7 +66,7 @@ export class Swapper extends Bot {
         const [pda, bump] =  anchor.web3.PublicKey
         .findProgramAddressSync(
             [
-            anchor.utils.bytes.utf8.encode(ESCROW_PDA_SEED),
+            anchor.utils.bytes.utf8.encode(ESCROW_SEED),
             ],
             this.program.programId
         );

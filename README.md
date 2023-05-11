@@ -12,17 +12,17 @@ The program using the following mechanism to handle the swap from SOL to MOVE to
 Generally, the state of the program is stored in programs/solana-swap-dapp/src/state/ folder
 The instructions is stored in programs/solana-swap-dapp/src/instructions/ folder
 
-1. An initializer `initialize` a `controller` account, along with an `escrow`, via the function instructions/initialize.ts. The `controller` and the `escrow` are constructed as the PDAs from the CONTROLLER_SEED AND ESCROW_SEED.
+1. An `authorizer` intitalize a `controller` account, along with an `escrow`, via the function instructions/initialize.ts. The `controller` and the `escrow` are constructed as the PDAs from the CONTROLLER_SEED AND ESCROW_SEED.
 
-2. The `controller` holds information about how to perform swap, including `autherizer` - creator of the program, who will be able to add or remove liquidity, `move_per_sol` - how much MOVE a user will receive when he swap SOL for MOVE, and other information (please check programs/src/state/controller.rs). For example, if the `move_per_sol` is 10, the user can swap 1 SOL for 10 MOVE tokens. Controller also receives and holds SOL from the `buy operation`, and the controller allows the `autherizer` to get SOL back when remove liquidity.
+2. The `controller` holds information about how to perform swap, including `authorizer` - creator of the program, who will be able to add or remove liquidity, `move_per_sol` - how much MOVE a user will receive when he swap SOL for MOVE, and other information (please check programs/src/state/controller.rs). For example, if the `move_per_sol` is 10, the user can swap 1 SOL for 10 MOVE tokens. Controller also receives and holds SOL from the `buy operation`, and the controller allows the `authorizer` to get SOL and MOVE back when remove liquidity.
 
-3. In order for the user to `buy_move`, deployer needs to call `deposit` to provide the liquidity.
+3. In order for the user to `buy_move`, `authorizer` needs to call `deposit` to provide the liquidity.
 
 4. When a user buy Move, he sends some SOL to the program, and receive back some MOVE tokens. The operation is perform via the `buy_move` functions. -- instructions/swap.rs
 
 5. When a user sell Move, he sends some MOVE tokens to the program, and receive back SOL. The operation is perform via the `sell_move` functions. -- instructions/swap.rs
 
-6. The `autherizer` can remove liquidity via the `remove` functions. -- instructions/remove.rs
+6. The `authorizer` can remove liquidity via the `remove` functions. -- instructions/remove.rs
 
 ## Deployment
 

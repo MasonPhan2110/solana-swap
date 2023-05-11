@@ -1,4 +1,4 @@
-import { Swapper } from "../bot/swapper";
+import { Swapper } from "../Swapper/swapper";
 import * as anchor from "@project-serum/anchor";
 
 import {env} from "../env";

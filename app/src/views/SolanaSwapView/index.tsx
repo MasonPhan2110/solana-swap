@@ -114,7 +114,7 @@ type NetSwap = {
 const NetSwap: FC<NetSwap> = ({ onSwapSent }) => {
   const wallet: any = useAnchorWallet();
   const { program } = useProgram({ connection, wallet });
-  const [isBuyMove, setIsBuyMove] = useState(false);
+  const [isBuyMove, setIsBuyMove] = useState(true);
   const [amount, setAmount] = useState<any>(0)
   const [swapAmount, setSwapAmount] = useState<any>(0);
   // const [value, setValue] = useState<any>(0)
@@ -168,7 +168,7 @@ const NetSwap: FC<NetSwap> = ({ onSwapSent }) => {
     <div style={{ minWidth: 240 }} className="mb-8 pb-4 border-b border-gray-500 flex ">
 
       <div className="w-full flex flex-col items-center ">
-        <input value={amount} onChange={(e) => {
+        <input value={amount==0?"":amount} onChange={(e) => {
           const value = e.target.value 
           console.log(value)
           setAmount(value)
@@ -187,7 +187,7 @@ const NetSwap: FC<NetSwap> = ({ onSwapSent }) => {
         >
           ↓
         </button>
-        <input value={swapAmount} 
+        <input value={amount==0?"":swapAmount} disabled={true}
         placeholder={isBuyMove?"MOVE amount":"SOL amount"} className="mb-4"></input>
         <button
           className="btn btn-primary rounded-full normal-case	w-full"

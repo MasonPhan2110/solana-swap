@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { Swapper } from "../scripts/bot/swapper";
+import { Swapper } from "../scripts/Swapper/swapper";
 import { createMintToken, createUserAndAssociatedWallet, getSplBalance, transferToken } from "../scripts/utils/token";
 import { SolanaSwap } from "../target/types/solana_swap";
 import * as assert from "assert";
@@ -45,8 +45,8 @@ describe("solana-swap", () => {
      * 
      * token_mint: The mint address of the MOVE token. 
      * 
-     * deployer, deployer_token_wallet: The initializer of the contract (The escrow contract token - not added yet)
-     * alice - alice_token_wallet: Alice wallet is created, and she will get some MOVE tokens.  Alice will be the one who provide liquidity by putting MOVE token in to the escrow
+     * deployer, deployer_token_wallet: The initializer of the contract, and add liquidity (The escrow contract token - not added yet)
+     * alice - alice_token_wallet: Alice wallet is created, and she will get some MOVE tokens.
      * bob - bob_token_wallet: Bob and his ata token account will be created, but he gets no MOVE token initially
      */
     token_mint = await createMintToken(provider, MOVE_DECIMAL);
@@ -131,6 +131,7 @@ describe("solana-swap", () => {
     assert.ok(bobBalanceBeforeSwap - bobBalanceAfterSwap >= solAmount.toNumber(), "Bob balance should be deducted by an amount greater than 1 SOL"); // bob pay some lamports for gas fee 
     assert.ok(controllerBalanceAfterSwap - controllerBalanceBeforeSwap == solAmount.toNumber(), "Controller Balance should increase by an swap amount");
     let bobMoveBalance = await getSplBalance(swapper.provider, bob_token_wallet);
+
     expectedReceiveAmount = solAmount.mul(new anchor.BN(MOVE_PER_SOL)).mul(new anchor.BN(10).pow(new anchor.BN(MOVE_DECIMAL))).div(SOL_TO_LAMPORT)
     assert.ok(expectedReceiveAmount.toNumber() == Number(bobMoveBalance), "Bob receive an incorect amount");
   })  
@@ -174,6 +175,7 @@ describe("solana-swap", () => {
     assert.ok(bobBalanceAfterSwap - bobBalanceBeforeSwap >= 0, "Bob Sol balance should be increase");
     assert.ok(controllerBalanceBeforeSwap- controllerBalanceAfterSwap == expectedReceiveAmount.toNumber(), "Controller Balance should decrease by an expected SOl");
     assert.ok(Number(escrowTokenBalanceAfterSwap) - Number(escrowTokenBalanceBeforeSwap) == moveAmount.toNumber(), "Escrow should increase 10 Move")
+    
     let bobMoveBalance = await getSplBalance(swapper.provider, bob_token_wallet);
     assert.ok(Number(bobMoveBalance) == 0, "Bob token balance should be 0");
   })

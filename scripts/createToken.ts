@@ -1,18 +1,15 @@
-import {Bot} from"./bot/bot";
-import * as solana from "@solana/web3.js";
-import * as anchor from "@project-serum/anchor";
-
+import {getDeployer, getProvider} from "./utils/provider";
 import { createAssociatedWalletAndMint, createMintToken, createTokenMetadata } from "./utils/token";
-import { formatAmount } from "@metaplex-foundation/js";
 import { DataV2 } from "@metaplex-foundation/mpl-token-metadata";
 
 const  main= async()=>{
-    const bot = new Bot();
+    const deployer = getDeployer();
+    const provider = getProvider(deployer);
     const mintAmount = BigInt(10000000000000); // 10 mil MOVE token
 
-    let tokenMint = await createMintToken(bot.provider, 6);
+    let tokenMint = await createMintToken(provider, 6);
     console.log(`Mint successfully: ${tokenMint}`)
-    await createAssociatedWalletAndMint(bot.provider, bot.deployer, tokenMint, mintAmount);
+    await createAssociatedWalletAndMint(provider, deployer, tokenMint, mintAmount);
 
     const tokenMetadata = {
       name: "MOVE",
@@ -23,7 +20,7 @@ const  main= async()=>{
       collection: null,
       uses: null
     } as DataV2;
-    await createTokenMetadata(bot.provider, bot.deployer, tokenMint, tokenMetadata);
+    await createTokenMetadata(provider,deployer, tokenMint, tokenMetadata);
 }
   
 main().catch(error => console.log(error));

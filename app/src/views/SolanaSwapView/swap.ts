@@ -76,7 +76,7 @@ export const buy_move = async({
   console.log(wallet)
   console.log(amount)
   console.log(`Program id: ${program.programId.toBase58()}`)
-  await program.methods.buyMove(amount).accounts({
+  const result = await program.methods.buyMove(amount).accounts({
     user: wallet.publicKey,
       tokenMint: tokenMint, 
       controller: controllerPDA.key,
@@ -87,6 +87,7 @@ export const buy_move = async({
       tokenProgram: spl.TOKEN_PROGRAM_ID,
       associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID
 }).signers([]).rpc();
+return result;
 }
 
 export const sell_move = async({
@@ -106,14 +107,15 @@ export const sell_move = async({
   
   
   console.log(`Program id: ${program.programId.toBase58()}`)
-  await program.methods.sellMove(amount).accounts({
-    user: wallet.publicKey,
-      tokenMint: tokenMint, 
-      controller: controllerPDA.key,
-      escrow: escrowPDA.key, 
-      userTokenAccount: userTokenAccount,
-      systemProgram: anchor.web3.SystemProgram.programId,
-      tokenProgram: spl.TOKEN_PROGRAM_ID,
-      associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID
-}).signers([]).rpc();
+  const result = await program.methods.sellMove(amount).accounts({
+  user: wallet.publicKey,
+    tokenMint: tokenMint, 
+    controller: controllerPDA.key,
+    escrow: escrowPDA.key, 
+    userTokenAccount: userTokenAccount,
+    systemProgram: anchor.web3.SystemProgram.programId,
+    tokenProgram: spl.TOKEN_PROGRAM_ID,
+    associatedTokenProgram: spl.ASSOCIATED_TOKEN_PROGRAM_ID
+  }).signers([]).rpc();
+  return result
 }

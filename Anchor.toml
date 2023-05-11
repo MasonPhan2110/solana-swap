@@ -8,7 +8,7 @@ solana_swap = "D4sU4y71tzBCYBeybADxfdowHNMw88txNM1cVxyPy5Qt"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "Localnet"
 wallet = "/Users/nhatminhphan/.config/solana/id.json"
 
 [scripts]
