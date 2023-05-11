@@ -10,7 +10,7 @@ const main= async()=>{
     const swapper = new Swapper(swap_token);
  
     let deployerATA = await getAtaAccount(swap_token, swapper.deployer.publicKey);
-    let amount = new anchor.BN(1000000000); // 1 SOL
+    let amount = new anchor.BN(2000000000); // 1 SOL
     await swapper.deposit(swapper.deployer, deployerATA, amount);
 }
   
