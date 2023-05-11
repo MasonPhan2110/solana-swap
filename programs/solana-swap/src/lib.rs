@@ -6,7 +6,7 @@ pub mod instructions;
 pub mod states;
 
 use instructions::*;
-declare_id!("7ipVQZA9K5XJYjJbBZzp4USPsfJyxWSmACqVRWAp2aa2");
+declare_id!("D4sU4y71tzBCYBeybADxfdowHNMw88txNM1cVxyPy5Qt");
 
 #[program]
 pub mod solana_swap {

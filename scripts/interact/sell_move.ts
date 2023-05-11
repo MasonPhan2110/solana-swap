@@ -1,7 +1,7 @@
 import { Swapper } from "../bot/swapper";
 import * as anchor from "@project-serum/anchor";
 
-import {env} from "../data";
+import {env} from "../env";
 import { getAtaAccount } from "../utils/token";
 
 

@@ -1,7 +1,7 @@
 import { Swapper } from "../bot/swapper";
 import * as anchor from "@project-serum/anchor";
 
-import {env} from "../data";
+import {env} from "../env";
 import { getAtaAccount } from "../utils/token";
 
 
@@ -10,7 +10,7 @@ const main= async()=>{
     const swapper = new Swapper(swap_token);
  
     let deployerATA = await getAtaAccount(swap_token, swapper.deployer.publicKey);
-    let amount = new anchor.BN(10000000); // 1 SOL
+    let amount = new anchor.BN(1000000000); // 1 SOL
     await swapper.deposit(swapper.deployer, deployerATA, amount);
 }
   

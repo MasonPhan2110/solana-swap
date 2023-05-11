@@ -26,8 +26,8 @@ export class Swapper extends Bot {
 
 
     getController = async(): Promise<PDAParam> => {
-        const [pda, bump] = await anchor.web3.PublicKey
-        .findProgramAddress(
+        const [pda, bump] =  anchor.web3.PublicKey
+        .findProgramAddressSync(
             [
             anchor.utils.bytes.utf8.encode(CONTROLLER_PDA_SEED),
             ],
@@ -41,8 +41,8 @@ export class Swapper extends Bot {
     }
 
     getEscrow = async(): Promise<PDAParam> => {
-        const [pda, bump] = await anchor.web3.PublicKey
-        .findProgramAddress(
+        const [pda, bump] =  anchor.web3.PublicKey
+        .findProgramAddressSync(
             [
             anchor.utils.bytes.utf8.encode(ESCROW_PDA_SEED),
             ],
@@ -89,6 +89,9 @@ export class Swapper extends Bot {
         let controllerPDA = await this.getController();
         let escrowPDA = await this.getEscrow();
 
+
+        console.log("controllerPDA", controllerPDA.key.toString());
+        console.log("escrowPDA", escrowPDA.key.toString());
         return await this.program.methods.sellMove(amount).accounts({
             user: user.publicKey,
             controller: controllerPDA.key,
