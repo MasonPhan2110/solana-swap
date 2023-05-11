@@ -5,7 +5,7 @@ A smart contract that allow swap between SOL and MOVE tokens.
 ## Demo website
 
 - https://solana-swap-ashy.vercel.app/
-- Mint token address
+- Mint token address on Devnet
   5XzHzDAodUPDsXsXGHUJby7U3Ydepu5Ufd65hPece3vw
 
 ## Program structure
