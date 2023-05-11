@@ -1,17 +1,14 @@
 {
   "../contexts/ClientWalletProvider.tsx -> @solana/wallet-adapter-react-ui/styles.css": {
-    "id": 999,
+    "id": "../contexts/ClientWalletProvider.tsx -> @solana/wallet-adapter-react-ui/styles.css",
     "files": [
-      "static/css/44c2cf5bcacd5fef.css",
-      "static/chunks/999.87b6d8366183cc02.js"
+      "static/chunks/node_modules_solana_wallet-adapter-react-ui_styles_css.js"
     ]
   },
   "_app.tsx -> ../contexts/ClientWalletProvider": {
-    "id": 9128,
+    "id": "_app.tsx -> ../contexts/ClientWalletProvider",
     "files": [
-      "static/chunks/843-19974c46fd01c73a.js",
-      "static/chunks/384.4bc4e32f60c175a0.js",
-      "static/chunks/128.60097a7ab70b08a4.js"
+      "static/chunks/src_contexts_ClientWalletProvider_tsx.js"
     ]
   }
 }

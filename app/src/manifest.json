@@ -3,8 +3,8 @@
   "short_name": "Swapper",
   "display": "standalone",
   "start_url": "./",
-  "theme_color": "#002140",
-  "background_color": "#001529",
+  "theme_color": "#63a0db",
+  "background_color": "#63a0db",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
