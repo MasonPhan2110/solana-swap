@@ -1,26 +1,22 @@
-import Link from "next/link";
+
 import { FC, useEffect, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import { HomeIcon, UserIcon } from "@heroicons/react/outline";
-import orderBy from "lodash.orderby";
 
-import { Loader, SelectAndConnectWalletButton } from "components";
+
+import { SelectAndConnectWalletButton } from "components";
 import * as anchor from "@project-serum/anchor";
 
 import { SolanaLogo } from "components";
 import styles from "./index.module.css";
 import { buy_move, sell_move } from "./swap";
 import { useProgram } from "./useProgram";
-import Image from "next/image";
-import { use } from "chai";
 
 const endpoint = "https://explorer-api.devnet.solana.com";
 
 const connection = new anchor.web3.Connection(endpoint);
 
 export const SolanaSwapView: FC = ({ }) => {
-  const [isAirDropped, setIsAirDropped] = useState(false);
   const wallet = useAnchorWallet();
 
 
